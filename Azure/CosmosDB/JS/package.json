@@ -1,0 +1,14 @@
+{
+  "name": "cosmosdb-node",
+  "version": "1.0.4",
+  "description": "The Node API for interacting with the CosmosDB REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Xavier Geerinck",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.1.1"
+  }
+}
