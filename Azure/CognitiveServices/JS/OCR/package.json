@@ -1,0 +1,15 @@
+{
+  "name": "CognitiveServices-OCR",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "delay": "^4.0.1",
+    "node-fetch": "^2.2.0"
+  }
+}
