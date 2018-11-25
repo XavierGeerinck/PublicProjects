@@ -1,0 +1,110 @@
+<!-- We can start this on localhost through Node.JS: http-server (npm install -g http-server) -->
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Minecraft NFC</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  
+  <style>
+    html,
+    body {
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      background: #f1edec;
+      height: 100%;
+
+      /* sticky footer together with #content */
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    #content {
+      flex: 1;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0 40px 0;
+    }
+
+    #content p {
+      font-size: 24px;
+      font-weight: bold;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    header {
+      height: 112px;
+      background-image: url("/images/header-bg.png");
+    }
+
+    header img {
+      height: 100px;
+      width: 614px;
+      text-align: center;
+      position: absolute;
+      left: 50%;
+      margin-left: -307px;
+      top: 40px;
+    }
+
+    footer {
+      background-color: #313131;
+      height: 94px;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    #logo-microsoft {
+      align-self: flex-end;
+    }
+    
+    #minecraft {
+      height: 400px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="/images/minecraft.svg" />
+  </header>
+
+  <div id="content">
+    <p>Put a doll on the NFC Reader to get started</p>
+  </div>
+
+  <footer>
+    <div class="container">
+      <img id="logo-microsoft" src="/images/microsoft.svg" height="25" width="105" />
+    </div> 
+  </footer>
+  
+  <!-- AMQP Scripts (realtime streaming to EventHub) -->
+  <script src="js/require.js"></script>
+  <script src="js/rhea.js"></script>
+  <script src="js/amqp.js"></script>
+
+  <!-- Basic Utils -->
+  <script src="js/utils.js"></script>
+
+  <!-- Main Script -->
+  <script src="js/main.js"></script>
+</body>
+
+</html>
