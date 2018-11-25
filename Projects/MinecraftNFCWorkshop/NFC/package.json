@@ -1,0 +1,16 @@
+{
+    "name": "minecraft",
+    "version": "0.0.0",
+    "description": "",
+    "main": "index.js",
+    "dependencies": {
+      "mfrc522-rpi": "^1.1.0",
+      "azure-event-hubs": "0.0.8"
+    },
+    "devDependencies": {},
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+  }
