@@ -1,0 +1,35 @@
+html, body, #root, .App {
+  padding: 0;
+  margin: 0;
+
+  height: 100%;
+  width: 100%;
+
+  background-color: #F4F8FB;
+  color: black;
+}
+
+.App-Body {
+  height: calc(100% - 66px);
+  width: calc(100% - 66px);
+}
+
+.App-Body {  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Header {
+  height: 66px;
+  background-color: #1C2022;
+  color: white;
+}
+
+.Header h1 {
+  font-size: 24px;
+  margin: 0;
+  padding: 0 20px;
+
+  line-height: 66px; /* Height Header */
+}

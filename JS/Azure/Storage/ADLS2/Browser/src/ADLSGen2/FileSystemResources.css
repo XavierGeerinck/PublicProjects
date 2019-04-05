@@ -1,0 +1,17 @@
+.ADLSGen2-FileSystemResources {
+    overflow-y: scroll;
+}
+
+.ADLSGen2-FileSystemResources > div {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    text-align: left;
+    font-size: 14px;
+
+    display: flex;
+}
+
+.ADLSGen2-FileSystemResources > .ADLSGen2-FileSystemPathResourceFile:hover,
+.ADLSGen2-FileSystemResources > .ADLSGen2-FileSystemPathResourceFolder:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.1);
+  }

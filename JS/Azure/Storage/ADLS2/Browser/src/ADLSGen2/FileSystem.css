@@ -1,0 +1,30 @@
+.ADLSGen2-FileSystem {
+    background-color: rgba(136, 103, 103, 0.1);
+    margin: 10px;
+
+    text-align: center;
+    border-radius: 5px;
+
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.ADLSGen2-FileSystem:hover {
+    background-color: rgba(255, 255, 255, 0.01);
+    cursor: pointer;
+}
+
+.ADLSGen2-FileSystem-Actions {
+    display: block;
+    margin-left: auto;    
+    padding: 20px 30px;
+}
+
+.ADLSGen2-FileSystem-Content {
+    width: 100%;
+    text-align: left;
+    padding: 20px 30px;
+}

@@ -1,0 +1,12 @@
+.ADLSGen2-FileSystemPathResourceFile-Actions {
+  display: block;
+  margin-left: auto;    
+  padding: 10px 15px;
+  display: flex;
+}
+
+.ADLSGen2-FileSystemPathResourceFile-Content {
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+}

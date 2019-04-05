@@ -1,0 +1,17 @@
+.ADLSGen2-MenuItem button {
+    padding: 10px 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    font-size: 12px;
+    margin: 0 10px;
+}
+
+.ADLSGen2-MenuItem button:first-child {
+    margin-left: 0px;
+}
+
+.ADLSGen2-MenuItem button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}

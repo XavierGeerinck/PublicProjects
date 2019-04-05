@@ -1,0 +1,30 @@
+.ADLSGen2-FileSystemPathResourceFolder img {
+  margin-top: 0px;
+  height: 14px;
+}
+
+.ADLSGen2-FileSystemPathResourceFolder span {
+  margin-left: 15px;
+}
+
+.ADLSGen2-FileSystemPathResourceFolder span:hover {
+  text-decoration: underline;
+}
+
+.ADLSGen2-FileSystemPathResourceFolder button {
+  display: block;
+  margin-left: auto;
+}
+
+.ADLSGen2-FileSystemPathResourceFolder-Actions {
+  display: block;
+  margin-left: auto;    
+  padding: 10px 15px;
+  display: flex;
+}
+
+.ADLSGen2-FileSystemPathResourceFolder-Content {
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+}
