@@ -1,9 +1,9 @@
 const config = {
-  eventHubUrl: "EVENTHUBURL", // <ehName>.servicebus.windows.net
-  eventHubSharedAccessKeyName: "NAME",
-  eventHubSharedAccessKey: "KEY",
-  eventHubNamespace: "NAMESPACE", // <ehNamespace>
-  eventHub: "EVENTHUBNAME",
+  eventHubUrl: "", // <ehName>.servicebus.windows.net
+  eventHubSharedAccessKeyName: "RootManageSharedAccessKey",
+  eventHubSharedAccessKey: "",
+  eventHubNamespace: "", // <ehNamespace>
+  eventHub: "",
 };
 
 module.exports = {

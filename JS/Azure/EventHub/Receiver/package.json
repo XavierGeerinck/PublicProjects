@@ -1,12 +1,12 @@
 {
-  "name": "eventhubsender",
+  "name": "realtime-poc-replayer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "sender.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Xavier Geerinck",
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "azure-event-hubs": "0.0.8",

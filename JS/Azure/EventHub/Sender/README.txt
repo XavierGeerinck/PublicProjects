@@ -1,0 +1,1 @@
+usage: `node sender.js <data_file>` e.g. `node sender.js json`

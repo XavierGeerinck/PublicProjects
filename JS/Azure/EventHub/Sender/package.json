@@ -1,0 +1,17 @@
+{
+  "name": "realtime-poc-replayer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sender.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "azure-event-hubs": "0.0.8",
+    "node-fetch": "^2.1.2",
+    "utf8": "^3.0.0",
+    "uuid": "^3.3.2"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "realtime-poc-replayer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sender.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node index.ts",
+    "dev": "ts-node-dev --poll --no-notify ./server.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/hapi": "^18.0.1",
+    "@types/node": "^11.13.4",
+    "azure-event-hubs": "0.0.8",
+    "hapi": "^18.1.0",
+    "node-fetch": "^2.1.2",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.3",
+    "utf8": "^3.0.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^1.0.0-pre.32"
+  }
+}
