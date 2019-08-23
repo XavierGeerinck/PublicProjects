@@ -122,3 +122,8 @@ gradle-app.setting
 **/build/
 
 config.js
+
+# Custom
+.env
+obj/
+bin/
