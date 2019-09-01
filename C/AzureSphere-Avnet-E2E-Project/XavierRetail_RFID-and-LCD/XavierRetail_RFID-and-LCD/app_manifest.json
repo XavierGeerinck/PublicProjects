@@ -1,0 +1,15 @@
+{
+  "SchemaVersion": 1,
+  "Name" : "XavierRetail_RFID_and_LCD",
+  "ComponentId" : "808434a7-65cb-4649-b9d2-f09bce0db47d",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "<Your_DPS_Scope_ID>" ],
+  "Capabilities": {
+    "AllowedConnections": [ "global.azure-devices-provisioning.net", "<YourIoTHubName>.azure-devices.net" ],
+    "Gpio": [ "$AVNET_MT3620_SK_USER_LED_GREEN" ],
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000",
+    "I2cMaster": [ "$AVNET_MT3620_SK_ISU2_I2C" ],
+    "SpiMaster": [ "$AVNET_MT3620_SK_ISU1_SPI" ]
+  },
+  "ApplicationType":"Default"
+}

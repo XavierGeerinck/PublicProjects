@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XavierRetail_RFID-and-LCD", "XavierRetail_RFID-and-LCD\XavierRetail_RFID-and-LCD.vcxproj", "{AE25CB30-E97F-4FED-8A43-68C191450284}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE25CB30-E97F-4FED-8A43-68C191450284}.Debug|ARM.ActiveCfg = Debug|ARM
+		{AE25CB30-E97F-4FED-8A43-68C191450284}.Debug|ARM.Build.0 = Debug|ARM
+		{AE25CB30-E97F-4FED-8A43-68C191450284}.Release|ARM.ActiveCfg = Release|ARM
+		{AE25CB30-E97F-4FED-8A43-68C191450284}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43D8D6E4-74A9-4C22-B6EF-34D4CAB6E06B}
+	EndGlobalSection
+EndGlobal

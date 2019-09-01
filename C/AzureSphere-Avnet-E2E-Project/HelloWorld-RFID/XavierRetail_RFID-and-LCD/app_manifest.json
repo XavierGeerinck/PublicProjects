@@ -1,0 +1,12 @@
+{
+  "SchemaVersion": 1,
+  "Name" : "XavierRetail_RFID_and_LCD",
+  "ComponentId" : "808434a7-65cb-4649-b9d2-f09bce0db47d",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    //"Gpio": [ 9 ],
+    "SpiMaster": [ "$AVNET_MT3620_SK_ISU1_SPI" ]
+  },
+  "ApplicationType":"Default"
+}

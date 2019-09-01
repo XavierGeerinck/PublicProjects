@@ -1,0 +1,12 @@
+{
+  "SchemaVersion": 1,
+  "Name" : "TestSPI",
+  "ComponentId" : "652f1e9f-c167-4ba0-84e0-1aeac278c07f",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "I2cMaster": [ "$AVNET_MT3620_SK_ISU2_I2C" ],
+    "SpiMaster": [ ]
+  },
+  "ApplicationType":"Default"
+}

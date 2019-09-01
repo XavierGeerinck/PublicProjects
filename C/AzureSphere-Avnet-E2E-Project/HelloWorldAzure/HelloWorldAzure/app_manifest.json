@@ -1,0 +1,13 @@
+{
+  "SchemaVersion": 1,
+  "Name" : "HelloWorldAzure",
+  "ComponentId" : "22d77c61-641a-43ab-be91-8e86a876a857",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "<YOUR_DPS_Scope_ID>" ],
+  "Capabilities": {
+    "AllowedConnections": [ "global.azure-devices-provisioning.net", "<YourIoTHubName>.azure-devices.net" ],
+    "Gpio": [ "$AVNET_MT3620_SK_USER_LED_GREEN" ],
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000"
+  },
+  "ApplicationType":"Default"
+}
