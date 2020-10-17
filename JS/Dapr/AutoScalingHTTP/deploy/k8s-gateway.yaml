@@ -1,0 +1,30 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: d-dapr-autoscaling-http-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-autoscaling-http-gateway
+  template:
+    metadata:
+      labels:
+        app: dapr-autoscaling-http-gateway
+      annotations:
+        dapr.io/enabled: "true" # Do we inject a sidecar to this deployment?
+        dapr.io/id: "dapr-autoscaling-http-gateway" # Unique ID or Name for Dapr App (so we can communicate with it)
+        dapr.io/port: "5001" # Port we are going to listen on for Dapr interactions (is app specific)
+    spec:
+      containers:
+      - name: main # Simple name so we can reach it easily
+        image: thebillkidy/dapr-autoscaling-http-gateway:latest
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 5000 # This port we will expose (external port)
+        env:
+        - name: DAPR_HOST
+          value: "127.0.0.1"
+        - name: DAPR_PORT
+          value: "3500"

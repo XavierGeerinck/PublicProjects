@@ -1,0 +1,25 @@
+{
+  "name": "dapr-autoscaling-worker",
+  "version": "1.0.0",
+  "description": "The scraper will accept parameters that it will use to scrape the target website and fetch the target variables.",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf ./dist && tsc -p .",
+    "start": "node dist/index.js",
+    "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"ts-node ./src/index.ts\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^14.11.2",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.6.2",
+    "tsc-watch": "^4.2.8",
+    "typescript": "^3.8.3"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "dapr-autoscaling-http-gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf ./dist && tsc -p .",
+    "start": "node dist/index.js",
+    "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"ts-node ./src/index.ts\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^14.11.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.8.3"
+  }
+}
