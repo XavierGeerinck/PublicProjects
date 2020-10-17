@@ -15,7 +15,7 @@
     "@types/node": "^11.13.4",
     "azure-event-hubs": "0.0.8",
     "hapi": "^18.1.0",
-    "node-fetch": "^2.1.2",
+    "node-fetch": "^2.6.1",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.3",
     "utf8": "^3.0.0",
