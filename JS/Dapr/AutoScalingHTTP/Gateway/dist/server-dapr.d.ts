@@ -1,5 +1,5 @@
 import express from 'express';
-import Dapr from './api/dapr';
+import Dapr from './API/dapr';
 declare class ServerDapr {
     port: number;
     app: express;

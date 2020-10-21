@@ -1,0 +1,19 @@
+# https://keda.sh/docs/2.0/scalers/rabbitmq-queue/
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: keda-saledobject-dapr-autoscaling-http-worker
+spec:
+  scaleTargetRef:
+    name: d-dapr-autoscaling-http-worker # deployment name
+  pollingInterval: 3  # Optional. Default: 30 seconds
+  cooldownPeriod:  10 # Optional. Default: 300 seconds
+  minReplicaCount: 1  # Optional. Default: 0
+  maxReplicaCount: 10 # Optional. Default: 100
+  triggers:
+  - type: rabbitmq
+    metadata:
+      host: 'amqp://admin:admin@rabbitmq.default.svc.cluster.local:5672'
+      protocol: amqp
+      queueName: rabbitmq-worker-input
+      queueLength: '2' # After how many do we scale up?

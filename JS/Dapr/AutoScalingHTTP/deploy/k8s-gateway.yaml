@@ -1,4 +1,3 @@
-# Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,7 +18,7 @@ spec:
     spec:
       containers:
       - name: main # Simple name so we can reach it easily
-        image: thebillkidy/dapr-autoscaling-http-gateway:latest
+        image: thebillkidy/dapr-autoscaling-http-gateway:v0.0.8
         imagePullPolicy: Always
         ports:
           - containerPort: 5000 # This port we will expose (external port)

@@ -3,14 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const server_external_1 = __importDefault(require("./server-external"));
-const server_dapr_1 = __importDefault(require("./server-dapr"));
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 console.log("Creating Response Store");
 const expressResponseStore = {};
-console.log("Starting External Server - Port 5000");
-const serverExternal = new server_external_1.default(5000, expressResponseStore);
-serverExternal.start();
-console.log("Starting Dapr Server - Port 5001");
-const serverDapr = new server_dapr_1.default(5001, expressResponseStore);
-serverDapr.start();
+const app = express_1.default();
+app.use(express_1.default.json());
+app.use(cors_1.default());
+app.get('/', async (req, res) => {
+    console.log('Processing');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('DONE');
+    res.json({ res: "DONE" });
+});
+app.listen(5000, () => console.log(`Listening on port 5000`));
 //# sourceMappingURL=index.js.map

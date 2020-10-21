@@ -4,11 +4,11 @@
 
 ## Building and Pushing to Docker
 
-docker build -t thebillkidy/dapr-autoscaling-http-gateway ./Gateway
-docker build -t thebillkidy/dapr-autoscaling-http-worker ./Worker
+docker build -t thebillkidy/dapr-autoscaling-http-gateway:v0.0.2 ./Gateway
+docker build -t thebillkidy/dapr-autoscaling-http-worker:v0.0.2 ./Worker
 
-docker push thebillkidy/dapr-autoscaling-http-gateway
-docker push thebillkidy/dapr-autoscaling-http-worker
+docker push thebillkidy/dapr-autoscaling-http-gateway:v0.0.2
+docker push thebillkidy/dapr-autoscaling-http-worker:v0.0.2
 
 ## Running
 

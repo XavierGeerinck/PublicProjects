@@ -7,6 +7,6 @@ spec:
   type: bindings.rabbitmq
   metadata:
   - name: host
-    value: amqp://rabbitmq.default.svc.cluster.local:5672
+    value: amqp://admin:admin@rabbitmq.default.svc.cluster.local:5672
   - name: queueName
     value: rabbitmq-worker-output

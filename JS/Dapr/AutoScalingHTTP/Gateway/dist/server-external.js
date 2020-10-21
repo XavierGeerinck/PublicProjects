@@ -7,8 +7,7 @@ const url_1 = __importDefault(require("url"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const config_1 = __importDefault(require("./config"));
-const dapr_1 = __importDefault(require("./api/dapr"));
-const DaprBinding_enum_1 = __importDefault(require("./enum/DaprBinding.enum"));
+const dapr_1 = __importDefault(require("./API/dapr"));
 const uuid_1 = require("uuid");
 class ServerExternal {
     constructor(port, expressResponseStore) {
@@ -19,9 +18,9 @@ class ServerExternal {
         this.timeouts = [];
     }
     start() {
-        this.app.use(express_1.default.json({ limit: '10mb' }));
+        this.app.use(express_1.default.json());
         this.app.use(cors_1.default());
-        this.app.get('/', this.routeMain.bind(this));
+        this.app.get('/', async (req, res) => await this.routeMain(req, res));
         this.app.listen(this.port, () => console.log(`Listening on port ${this.port}`));
     }
     async routeMain(req, res) {
@@ -35,19 +34,12 @@ class ServerExternal {
                 error_description: e.message
             });
         }
-        const test = queryObject.test;
         const id = uuid_1.v4();
         const timeoutMs = 60 * 1000;
-        this.expressResponseStore[id] = {
-            res,
-            req,
-            timeout: setTimeout(() => this.handleTimeout(id), timeoutMs)
-        };
         console.log(`[${id}] Processing request`);
-        await this.daprService.binding.send(DaprBinding_enum_1.default.RABBIT_MQ_INPUT, {
-            requestId: id,
-            test
-        });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`[${id}] Finished Processing request`);
+        res.json({ res: "HELLO WORLD" });
     }
     async handleTimeout(id) {
         console.log(`[${id}] Timeout occurred, checking if we need to clean up`);

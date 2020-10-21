@@ -17,15 +17,13 @@ class ServerDapr {
   }
 
   start() {
-    // Express limits the body to 100kb, so we need to change it 
-    // https://expressjs.com/en/api.html#express.json
-    this.app.use(express.json({ limit: '10mb' })); // Set size limit
+    this.app.use(express.json()); // Set size limit
 
     // Bindings
     this.daprService.binding.receive(this.app, DaprBindingEnum.RABBIT_MQ_OUTPUT, this.bindingWorkerResult.bind(this))
 
     // Start Server
-    this.app.listen(this.port, () => console.log(`Listening on port ${this.port}`));
+    this.app.listen(this.port, () => console.log(`[Gateway] Listening on port ${this.port}`));
   }
 
   async bindingWorkerResult(data) {
@@ -42,11 +40,11 @@ class ServerDapr {
 
     // Send response to the client
     client.res.writeHead(200, { 'Content-Type': 'text/html' });
-    client.res.write(data.html);
+    client.res.write(data.result_worker);
     client.res.end();
 
     // Clean up
-    console.log(`[${requestId}] Cleaning up`);
+    console.log(`[Gateway][${requestId}] Cleaning up`);
     clearTimeout(this.expressResponseStore[requestId].timeout);
     delete this.expressResponseStore[requestId];
   }
