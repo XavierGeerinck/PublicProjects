@@ -6,7 +6,7 @@
     "downloadjs": "^1.4.7",
     "isomorphic-fetch": "^2.2.1",
     "react": "^16.8.6",
-    "react-adal": "^0.4.22",
+    "react-adal": "^0.5.1",
     "react-dom": "^16.8.6",
     "react-scripts": "2.1.8"
   },
