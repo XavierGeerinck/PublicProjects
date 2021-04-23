@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "azure-event-hubs": "0.0.8",
-    "node-fetch": "^2.1.2",
+    "node-fetch": "^2.6.1",
     "utf8": "^3.0.0",
     "uuid": "^3.3.2"
   }

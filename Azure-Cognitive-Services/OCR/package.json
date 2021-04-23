@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "delay": "^4.0.1",
-    "node-fetch": "^2.2.0"
+    "node-fetch": "^2.6.1"
   }
 }
