@@ -11,10 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/hapi": "^18.0.1",
+    "@types/hapi": "^20.1.2",
     "@types/node": "^11.13.4",
     "azure-event-hubs": "0.0.8",
-    "hapi": "^18.1.0",
+    "hapi": "^20.1.2",
     "node-fetch": "^2.6.1",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.3",
