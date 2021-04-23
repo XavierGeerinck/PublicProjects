@@ -1,0 +1,28 @@
+{
+  "name": "dapr-iot-edge-hello-world",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf ./dist && tsc",
+    "start:dev": "npm run build && nodemon --ext \".ts,.js\" --watch \"./src\" --exec \"ts-node ./src/index.ts\"",
+    "start:dev:dapr": "DAPR_APP_PORT=4000 dapr run --app-id dapr-iot-edge-hello-world --app-port 4000 --dapr-http-port 3500 --components-path ./components/ npm run start:dev",
+    "start": "npm run build && node dist/index.js",
+    "start:dapr": "DAPR_APP_PORT=4000 dapr run --app-id dapr-iot-edge-hello-world --app-port 4000 --dapr-http-port 3500 --components-path ./components/ npm run start"
+  },
+  "keywords": [],
+  "author": "Xavier Geerinck",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.7",
+    "rimraf": "^3.0.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "@roadwork/dapr-js-sdk": "^0.1.10",
+    "@types/node": "^14.14.37",
+    "nanoexpress": "^2.4.13"
+  }
+}

@@ -1,0 +1,38 @@
+FROM node:latest
+
+WORKDIR /usr/src/app
+
+# #####################################
+# Setting up Container
+# #####################################
+# Install deps
+RUN apt-get update
+
+# Create Certificate
+RUN apt-get install ca-certificates
+
+# #####################################
+# Setting up Dapr
+# #####################################
+# Install the Dapr CLI (note: we could install Daprd but this is easier for documentation seeing that dapr run works)
+RUN wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+
+# Install the latest Dapr Runtime
+# -> we install in slim mode which excludes placement service, redis and zipkin containers
+# Note: we can change the version with dapr init --runtime-version
+RUN dapr init -s; dapr --version
+
+# #####################################
+# Setting up Node.js App
+# #####################################
+# Install Package.json dependendencies
+COPY package.json .
+RUN npm install
+
+# Copy Source Code
+ADD . /usr/src/app
+
+RUN npm run build
+
+CMD [ "npm", "run", "start:dapr" ]
+EXPOSE 8000
