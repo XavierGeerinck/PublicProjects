@@ -1,2 +1,4 @@
 config/
 .env
+dist/
+node_modules/
