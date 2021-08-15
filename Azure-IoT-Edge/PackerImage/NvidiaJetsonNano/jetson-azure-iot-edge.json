@@ -1,0 +1,87 @@
+{
+    "variables": {
+        "dps_group_enrollment_key": "NOT_SET_PASS_BY_CLI",
+        "dps_scope_id": "NOT_SET_PASS_BY_CLI",
+        "admin_create": "true",
+        "admin_user": "admin",
+        "admin_group": "admin",
+        "admin_passwd": "admin",
+        "admin_uid": "1000",
+        "admin_gid": "1000",
+        "admin_groups": "cdrom,floppy,sudo,audio,dip,video,plugdev,netdev,systemd-journal",
+        "admin_shell": "/bin/bash",
+        "admin_gecos": "Administrator",
+        "admin_ssh_authorised_key": ""
+    },
+    "builders": [
+        {
+            "type": "arm",
+            "file_urls": [
+                "https://developer.nvidia.com/jetson-nano-sd-card-image-r3221"
+            ],
+            "file_checksum": "7b87e26d59c560ca18692a1ba282d842",
+            "file_checksum_type": "md5",
+            "file_target_extension": "zip",
+            "image_build_method": "reuse",
+            "image_path": "jetson-nano.img",
+            "image_size": "12G",
+            "image_type": "dos",
+            "image_partitions": [
+                {
+                    "name": "root",
+                    "type": "83",
+                    "start_sector": "24576",
+                    "filesystem": "ext4",
+                    "size": "12G",
+                    "mountpoint": "/"
+                }
+            ],
+            "image_chroot_env": [
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+            ],
+            "qemu_binary_source_path": "/usr/bin/qemu-aarch64-static",
+            "qemu_binary_destination_path": "/usr/bin/qemu-aarch64-static"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "mkdir -p /tmp/packer/scripts"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "./scripts",
+            "destination": "/tmp/packer/"
+        },
+        {
+            "type": "shell",
+            "remote_folder": "/tmp/packer",
+            "skip_clean": true,
+            "environment_vars": [
+                "ADMIN_CREATE={{user `admin_create`}}",
+                "ADMIN_GECOS={{user `admin_gecos`}}",
+                "ADMIN_GID={{user `admin_gid`}}",
+                "ADMIN_GROUP={{user `admin_group`}}",
+                "ADMIN_GROUPS={{user `admin_groups`}}",
+                "ADMIN_PASSWD={{user `admin_passwd`}}",
+                "ADMIN_SHELL={{user `admin_shell`}}",
+                "ADMIN_SSH_AUTHORISED_KEY={{user `admin_ssh_authorised_key`}}",
+                "ADMIN_UID={{user `admin_uid`}}",
+                "ADMIN_USER={{user `admin_user`}}",
+                "DPS_GROUP_ENROLLMENT_KEY={{user `dps_group_enrollment_key`}}",
+                "DPS_SCOPE_ID={{user `dps_scope_id`}}"
+            ],
+            "scripts": [
+                "./scripts/00-clean-nvidia-jetson.sh",
+                "./scripts/01-configure-system.sh",
+                "./scripts/02-configure-ssh.sh",
+                "./scripts/03-configure-chrony.sh",
+                "./scripts/04-create-admin-user.sh",
+                "./scripts/05-install-iot-edge.sh"
+            ]
+        }
+    ],
+    "post-processors": []
+}
