@@ -1,21 +1,25 @@
 #!/bin/bash
-# Set DNS first since else we can't apt update
-echo "Setting DNS"
-cat << EOF > /etc/resolv.conf
-# Created on $(date)
-nameserver 1.1.1.1
-nameserver 1.0.0.1
-EOF
+# # Set DNS first since else we can't apt update
+# echo "Setting DNS"
+# cat << EOF > /etc/resolv.conf
+# # Created on $(date)
+# nameserver 1.1.1.1
+# nameserver 1.0.0.1
+# EOF
 
-# Jetson Nano Cleanup
-sudo apt-get update
+echo "[Jetson Nano] Fixing Sources"
+# # Fix sources list (t186 = TX2; t194 = AGX Xavier; t210 = Nano or TX1)
+# # https://forums.developer.nvidia.com/t/upgrade-to-r32-4-not-possible-via-ota/125881
+sed -i "s|https://repo.download.nvidia.com/jetson/<SOC>|https://repo.download.nvidia.com/jetson/t210|g" /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+ 
+# echo "[Jetson Nano] Removing the Display Manager"
+# sudo systemctl set-default multi-user.target
 
-echo "Cleaning Up Jetson Nano image - Base Cleaning"
-sudo apt autoremove -y
-sudo apt clean
-sudo apt remove thunderbird libreoffice-* -y
+# echo "[Jetson Nano] Disable Splash Screen"
+# sudo nvidia-xconfig --no-logo
+# sed -i "s|    Driver      \"nvidia\"|    Driver      \"nvidia\"\n    Option      \"NoLogo\"|g" /etc/X11/xorg.conf
 
-echo "Cleaning Up Jetson Nano image - Dev Cleaning"
+echo "[Jetson Nano] Removing unneeded dev libraries and samples"
 sudo rm -rf /usr/local/cuda/samples \
     /usr/src/cudnn_samples_* \
     /usr/src/tensorrt/data \
@@ -23,7 +27,5 @@ sudo rm -rf /usr/local/cuda/samples \
     /usr/share/visionworks* ~/VisionWorks-SFM*Samples \
     /opt/nvidia/deepstream/deepstream*/samples	
 
-echo "Cleaning Up Jetson Nano image - Deep Cleaning"
-sudo apt-mark manual cuda-command-line-tools-10-0 cuda-compiler-10-0 cuda-cufft-10-0 cuda-cufft-dev-10-0 cuda-cuobjdump-10-0 cuda-cupti-10-0 cuda-curand-10-0 cuda-curand-dev-10-0 cuda-cusolver-10-0 cuda-cusolver-dev-10-0 cuda-cusparse-10-0 cuda-cusparse-dev-10-0 cuda-gdb-10-0 cuda-gpu-library-advisor-10-0 cuda-libraries-dev-10-0 cuda-memcheck-10-0 cuda-misc-headers-10-0 cuda-nsight-compute-addon-l4t-10-0 cuda-nvcc-10-0 cuda-nvdisasm-10-0 cuda-nvgraph-10-0 cuda-nvgraph-dev-10-0 cuda-nvml-dev-10-0 cuda-nvprof-10-0 cuda-nvprune-10-0 cuda-nvrtc-10-0 cuda-nvrtc-dev-10-0 cuda-nvtx-10-0 cuda-tools-10-0 cuda-documentation-10-0 cuda-samples-10-0 cuda-toolkit-10-0
-sudo apt remove -y x11-common x11proto-* mesa-* libgl1* libglapi-mesa libgles* libglu1-mesa libglvnd* libglx* libx11-* libwayland-*
-sudo apt remove -y --purge ubuntu-desktop gdm3
+echo "[Jetson Nano] Removing Software"
+sudo apt-get remove thunderbird libreoffice-* -y

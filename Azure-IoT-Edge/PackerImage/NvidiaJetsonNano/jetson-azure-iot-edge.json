@@ -17,14 +17,14 @@
         {
             "type": "arm",
             "file_urls": [
-                "https://developer.nvidia.com/jetson-nano-sd-card-image-r3221"
+                "https://developer.nvidia.com/jetson-nano-2gb-sd-card-image"
             ],
-            "file_checksum": "7b87e26d59c560ca18692a1ba282d842",
+            "file_checksum": "eff97e91a4631b7d0ebc366e66e75239",
             "file_checksum_type": "md5",
             "file_target_extension": "zip",
             "image_build_method": "reuse",
             "image_path": "jetson-nano.img",
-            "image_size": "12G",
+            "image_size": "15G",
             "image_type": "dos",
             "image_partitions": [
                 {
@@ -32,7 +32,7 @@
                     "type": "83",
                     "start_sector": "24576",
                     "filesystem": "ext4",
-                    "size": "12G",
+                    "size": "15G",
                     "mountpoint": "/"
                 }
             ],
@@ -75,11 +75,12 @@
             ],
             "scripts": [
                 "./scripts/00-clean-nvidia-jetson.sh",
-                "./scripts/01-configure-system.sh",
-                "./scripts/02-configure-ssh.sh",
-                "./scripts/03-configure-chrony.sh",
-                "./scripts/04-create-admin-user.sh",
-                "./scripts/05-install-iot-edge.sh"
+                "./scripts/01-ubuntu-remove-gui.sh",
+                "./scripts/02-configure-system.sh",
+                "./scripts/03-configure-ssh.sh",
+                "./scripts/04-configure-chrony.sh",
+                "./scripts/05-create-admin-user.sh",
+                "./scripts/06-install-iot-edge.sh"
             ]
         }
     ],

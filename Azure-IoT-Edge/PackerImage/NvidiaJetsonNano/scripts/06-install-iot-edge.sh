@@ -47,3 +47,6 @@ chmod +x azure-iot-edge-installer.sh
 sudo -H ./azure-iot-edge-installer.sh -s \$DPS_SCOPE_ID -r \$MAC_ADDR -k \$DERIVED_KEY
 rm -rf azure-iot-edge-installer.sh
 EOF
+
+# Make it executable
+sudo chmod +x /etc/init.d/configure-iot-edge.sh
