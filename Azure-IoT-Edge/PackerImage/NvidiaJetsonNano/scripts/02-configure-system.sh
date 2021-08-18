@@ -99,8 +99,8 @@ echo "MAC address:" >> /etc/issue
 echo "\$MAC_FULL" >> /etc/issue
 echo "" >> /etc/issue
 echo "Network Interfaces:" >> /etc/issue
-echo "\$IPADDRS" >> /etc/issue
-echo "$NETWORKING_NET_DEVICE: \4{$NETWORKING_NET_DEVICE}" >> /etc/issue
+echo "* $NETWORKING_NET_DEVICE: \4{$NETWORKING_NET_DEVICE}" >> /etc/issue
+echo "* $NETWORKING_NET_DEVICE: \6{$NETWORKING_NET_DEVICE}" >> /etc/issue
 echo "==============================================" >> /etc/issue
 echo "" >> /etc/issue
 EOF

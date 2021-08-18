@@ -15,7 +15,8 @@ echo "[RW System] Creating First Boot"
 cat << EOF > /etc/systemd/system/rw-boot-first-edge.service
 [Unit]
 Description=RW First Boot Script IoT Edge
-Before=gdm3.service lightdm.service
+After=multi-user.target
+Wants=multi-user.target
 
 [Service]
 Type=oneshot
