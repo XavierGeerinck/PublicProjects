@@ -1,45 +1,117 @@
 #!/bin/bash
+##################################################################################
+# Config Files
+##################################################################################
+sudo mkdir -p /etc/rw
+sudo touch /etc/rw/rwfirstboot
 
-# We configure firstboot on network-pre.target which sets up before any network is set up
-# https://unix.stackexchange.com/questions/353597/set-hostname-on-first-boot-before-network-service
-echo "[System] Creating First Boot"
-cat << EOF > /lib/systemd/system/boot-first.service
+echo "[RW System] Creating First Boot"
+cat << EOF > /etc/systemd/system/rw-boot-first.service
 [Unit]
-ConditionPathExists=|!/etc/hostname
-
-Wants=network-pre.target
-Before=network-pre.target
-After=local-fs.target
+Description=RW First Boot Script
+Before=gdm3.service lightdm.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/boot-first.sh
-RemainAfterExit=yes
+ExecStart=/etc/systemd/rw-boot-first.sh
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-cat << EOF > /usr/local/sbin/boot-first.sh
+cat << EOF > /etc/systemd/rw-boot-first.sh
 #!/bin/bash
 # Created on \$(date)
+
+if [ ! -e /etc/rw/rwfirstboot ]; then
+	exit 0
+fi
 
 # ================================================
 # Configure Hostname
 # ================================================
+echo "[RW System] Configuring Hostname"
+
 HOST_PREFIX=${NETWORKING_HOST_PREFIX:-"node"}
 NET_DEVICE=${NETWORKING_NET_DEVICE:="eth0"}
 MAC_LAST4=\$(sed -rn "s/^.*([0-9A-F:]{5})$/\1/gi;s/://p" /sys/class/net/\${NET_DEVICE}/address)
 MAC_FULL=\$(sed -r "s/://g" /sys/class/net/\${NET_DEVICE}/address)
 NEW_HOSTNAME=\${HOST_PREFIX}-\${MAC_FULL:-0000}
 
-echo $NEW_HOSTNAME > /etc/hostname
-/bin/hostname -F /etc/hostname
+# Set hostname that persists across reboot
+sudo hostnamectl set-hostname \$NEW_HOSTNAME
+sudo hostnamectl --static set-hostname \$NEW_HOSTNAME
+
+# ================================================
+# Remove FirstBoot, configuration is done
+# ================================================
+rm -rf /etc/rw/rwfirstboot
 EOF
 
-sudo chmod +x /usr/local/sbin/boot-first.sh
-sudo systemctl enable boot-first
+sudo chmod +x /etc/systemd/rw-boot-first.sh
+sudo systemctl enable rw-boot-first
 
+# Issue File to configure per boot information
+echo "[System] Creating Boot Info"
+cat << EOF > /etc/systemd/system/rw-boot-each.service
+[Unit]
+Description=Add IP address to /etc/issue
+; Finish the first-boot script before the per-boot script
+After=rw-boot-first.service
+; This script affects state visible after login, so delay login of all kinds
+Before=serial-getty@ttyS0.service
+Before=graphical-session-pre.target
+Before=gdm3.service lightdm.service
+
+[Service]
+Type=oneshot
+ExecStart=/etc/systemd/rw-boot-each.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat << EOF > /etc/systemd/rw-boot-each.sh
+#!/bin/bash
+# Created on \$(date)
+echo "[System] Configuring /etc/issue"
+
+# ================================================
+# Configure /etc/issue
+# ================================================
+OS_INFO=\$(lsb_release -a 2>&1 | grep Description | cut -d ":" -f2 | sed -e 's/^[[:space:]]*//')
+HOST_PREFIX=${NETWORKING_HOST_PREFIX:-"node"}
+NET_DEVICE=${NETWORKING_NET_DEVICE:="eth0"}
+MAC_FULL=\$(sed -r "s/://g" /sys/class/net/\${NET_DEVICE}/address)
+NEW_HOSTNAME=\${HOST_PREFIX}-\${MAC_FULL:-0000}
+IPADDRS=\$(ip -4 -br a)
+IP=\$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+
+# Append IP address to /etc/issue
+echo "==============================================" > /etc/issue
+echo "        Welcome to Nvidia Jetson Nano!        " >> /etc/issue
+echo "==============================================" >> /etc/issue
+echo "HOST Info:" >> /etc/issue
+echo "\$OS_INFO" >> /etc/issue
+echo "\$NEW_HOSTNAME" >> /etc/issue
+echo "" >> /etc/issue
+echo "MAC address:" >> /etc/issue
+echo "\$MAC_FULL" >> /etc/issue
+echo "" >> /etc/issue
+echo "Network Interfaces:" >> /etc/issue
+echo "\$IPADDRS" >> /etc/issue
+echo "$NETWORKING_NET_DEVICE: \4{$NETWORKING_NET_DEVICE}" >> /etc/issue
+echo "==============================================" >> /etc/issue
+echo "" >> /etc/issue
+EOF
+
+sudo chmod +x /etc/systemd/rw-boot-each.sh
+sudo systemctl enable rw-boot-each
+
+##################################################################################
+# Configure Network
+# Note: this runs in Packer, not on the host
+##################################################################################
 # DNS Configuration
 echo "[System] Setting DNS"
 cat << EOF > /etc/resolv.conf
@@ -72,60 +144,9 @@ EOF
 sudo netplan --debug generate
 sudo netplan apply
 
-# Issue File to show IP on login
-# See the following for the hook: https://netplan.io/faq/#use-pre-up%2C-post-up%2C-etc.-hook-scripts
-echo "[System] Changing /etc/issue"
-# /etc/network/if-up.d/mod-etc-issue worked but the below doesn't IP doesn't get assigned
-# /etc/networkd-dispatcher/routable.d/add-ip-to-login-screen was old one
-
-echo "[System] Creating Boot Info"
-cat << EOF > /lib/systemd/system/boot-info.service
-[Unit]
-Description=Add IP address to /etc/issue
-After=network-online.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/sbin/boot-info.sh
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-cat << EOF > /usr/local/sbin/boot-info.sh
-#!/bin/bash
-# Created on \$(date)
-# ================================================
-# Configure /etc/issue
-# ================================================
-OS_INFO=\$(/usr/bin/lsb_release -a 2>&1 | grep Description | /usr/bin/cut -d ":" -f2 | sed -e 's/^[[:space:]]*//')
-HOST_PREFIX=${NETWORKING_HOST_PREFIX:-"node"}
-NET_DEVICE=${NETWORKING_NET_DEVICE:="eth0"}
-MAC_FULL=\$(sed -r "s/://g" /sys/class/net/\${NET_DEVICE}/address)
-NEW_HOSTNAME=\${HOST_PREFIX}-\${MAC_FULL:-0000}
-IPADDRS=\$(/usr/sbin/ip -4 -br a)
-
-# Append IP address to /etc/issue
-echo "======================================" > /etc/issue
-echo "    Welcome to Nvidia Jetson Nano!    " >> /etc/issue
-echo "======================================" >> /etc/issue
-echo "HOST Info:" >> /etc/issue
-echo "\$OS_INFO" >> /etc/issue
-echo "\$NEW_HOSTNAME" >> /etc/issue
-echo "" >> /etc/issue
-echo "MAC address:" >> /etc/issue
-echo "\$MAC_FULL" >> /etc/issue
-echo "" >> /etc/issue
-echo "Network Interfaces:" >> /etc/issue
-echo "\$IPADDRS" >> /etc/issue
-echo "======================================" >> /etc/issue
-echo "" >> /etc/issue
-EOF
-
-sudo chmod +x /usr/local/sbin/boot-info.sh
-sudo systemctl enable boot-info
-
+##################################################################################
+# Configure Dependencies
+##################################################################################
 # Dependencies
 sudo apt-get update
 # sudo apt-get upgrade -y

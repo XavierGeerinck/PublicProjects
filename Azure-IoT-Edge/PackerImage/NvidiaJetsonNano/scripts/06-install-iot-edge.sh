@@ -8,12 +8,34 @@ set -o errexit
 # Logging
 echo "Installing Azure IoT Edge"
 
+sudo mkdir -p /etc/rw
+sudo touch /etc/rw/rwfirstbootedge
+
+echo "[RW System] Creating First Boot"
+cat << EOF > /etc/systemd/system/rw-boot-first-edge.service
+[Unit]
+Description=RW First Boot Script IoT Edge
+Before=gdm3.service lightdm.service
+
+[Service]
+Type=oneshot
+ExecStart=/etc/systemd/rw-boot-first-edge.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # Installation
 # Note: escape since EOF allows command substitution. We can turn this of by using 'EOF'
 # however in this case we use it since we need to inject our key
-cat << EOF > /etc/init.d/configure-iot-edge.sh
+cat << EOF > /etc/systemd/rw-boot-first-edge.sh
 #!/bin/bash
-# Created on $(date)
+# Created on \$(date)
+
+if [ ! -e /etc/rw/rwfirstbootedge ]; then
+	exit 0
+fi
+
 # DPS Enrollment Group Key
 DPS_GROUP_ENROLLMENT_KEY="$DPS_GROUP_ENROLLMENT_KEY"
 DPS_SCOPE_ID="$DPS_SCOPE_ID"
@@ -29,13 +51,16 @@ if [[ -f "/etc/aziot/config.toml" ]]; then
     exit 0
 fi
 
-
-# Get the MAC Address
-MAC_ADDR=\$(ifconfig eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | sed -En "s/:/-/gp")
+# Configuration
+HOST_PREFIX=${NETWORKING_HOST_PREFIX:-"node"}
+NET_DEVICE=${NETWORKING_NET_DEVICE:="eth0"}
+MAC_LAST4=\$(sed -rn "s/^.*([0-9A-F:]{5})$/\1/gi;s/://p" /sys/class/net/\${NET_DEVICE}/address)
+MAC_FULL=\$(sed -r "s/://g" /sys/class/net/\${NET_DEVICE}/address)
+NEW_HOSTNAME=\${HOST_PREFIX}-\${MAC_FULL:-0000}
 
 # Specify the Registration ID
 # Note: in our case we utilize the Mac Address
-REG_ID=\$MAC_ADDR
+REG_ID=\$NEW_HOSTNAME
 
 # Compute a Derived key
 keybytes=\$(echo \$DPS_GROUP_ENROLLMENT_KEY | base64 --decode | xxd -p -u -c 1000)
@@ -44,9 +69,15 @@ DERIVED_KEY=\$(echo -n \$REG_ID | openssl sha256 -mac HMAC -macopt hexkey:\$keyb
 # Configure
 wget https://github.com/Azure/iot-edge-config/releases/latest/download/azure-iot-edge-installer.sh -O azure-iot-edge-installer.sh 
 chmod +x azure-iot-edge-installer.sh 
-sudo -H ./azure-iot-edge-installer.sh -s \$DPS_SCOPE_ID -r \$MAC_ADDR -k \$DERIVED_KEY
+sudo -H ./azure-iot-edge-installer.sh -s \$DPS_SCOPE_ID -r \$REG_ID -k \$DERIVED_KEY
 rm -rf azure-iot-edge-installer.sh
+
+# ================================================
+# Remove FirstBoot, configuration is done
+# ================================================
+rm -rf /etc/rw/rwfirstbootedge
 EOF
 
 # Make it executable
-sudo chmod +x /etc/init.d/configure-iot-edge.sh
+sudo chmod +x /etc/systemd/rw-boot-first-edge.sh
+sudo systemctl enable rw-boot-first-edge
