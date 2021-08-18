@@ -1,14 +1,44 @@
 #!/bin/bash
 
-# Hostname Configuration
-# Note: escape since EOF allows command substitution. We can turn this of by using 'EOF'
-echo "[System] Setting Hostname"
-cat << EOF > /etc/init.d/configure-hostname.sh
-#!/bin/bash
-# Created on $(date)
-MAC_ADDR=\$(ifconfig eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | sed -En "s/:/-/gp")
-echo \$MAC_ADDR > /etc/hostname
+# We configure firstboot on network-pre.target which sets up before any network is set up
+# https://unix.stackexchange.com/questions/353597/set-hostname-on-first-boot-before-network-service
+echo "[System] Creating First Boot"
+cat << EOF > /lib/systemd/system/boot-first.service
+[Unit]
+ConditionPathExists=|!/etc/hostname
+
+Wants=network-pre.target
+Before=network-pre.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/boot-first.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
 EOF
+
+cat << EOF > /usr/local/sbin/boot-first.sh
+#!/bin/bash
+# Created on \$(date)
+
+# ================================================
+# Configure Hostname
+# ================================================
+HOST_PREFIX=${NETWORKING_HOST_PREFIX:-"node"}
+NET_DEVICE=${NETWORKING_NET_DEVICE:="eth0"}
+MAC_LAST4=\$(sed -rn "s/^.*([0-9A-F:]{5})$/\1/gi;s/://p" /sys/class/net/\${NET_DEVICE}/address)
+MAC_FULL=\$(sed -r "s/://g" /sys/class/net/\${NET_DEVICE}/address)
+NEW_HOSTNAME=\${HOST_PREFIX}-\${MAC_FULL:-0000}
+
+echo $NEW_HOSTNAME > /etc/hostname
+/bin/hostname -F /etc/hostname
+EOF
+
+sudo chmod +x /usr/local/sbin/boot-first.sh
+sudo systemctl enable boot-first
 
 # DNS Configuration
 echo "[System] Setting DNS"
@@ -29,9 +59,9 @@ cat << EOF > /etc/netplan/50-cloud-init.yaml
 # Created on $(date)
 network:
   version: 2
-  renderer: networkd
+  renderer: NetworkManager
   ethernets:
-    eth0:
+    ${NETWORKING_NET_DEVICE:="eth0"}:
       addresses: []
       nameservers:
         addresses: [1.1.1.1, 1.0.0.1]
@@ -39,46 +69,53 @@ network:
       optional: true
 EOF
 
+sudo netplan --debug generate
 sudo netplan apply
 
 # Issue File to show IP on login
 # See the following for the hook: https://netplan.io/faq/#use-pre-up%2C-post-up%2C-etc.-hook-scripts
 echo "[System] Changing /etc/issue"
-cat << EOF > /etc/networkd-dispatcher/routable.d/add-ip-to-login-screen
-#!/bin/sh
-# Created on $(date)
-if [ "\$METHOD" = loopback ]; then
-    exit 0
-fi
+# /etc/network/if-up.d/mod-etc-issue worked but the below doesn't IP doesn't get assigned
+# /etc/networkd-dispatcher/routable.d/add-ip-to-login-screen was old one
 
-# Only run from ifup.
-if [ "\$MODE" != start ]; then
-    exit 0
-fi
+echo "[System] Creating Boot Info"
+cat << EOF > /lib/systemd/system/boot-info.service
+[Unit]
+Description=Add IP address to /etc/issue
+After=network-online.target
 
-HOSTINFO=\$(/usr/bin/lsb_release -a 2>&1 | grep Description | /usr/bin/cut -d ":" -f2 | /usr/bin/tr -d [:blank:])
-MACADDR=\$(ifconfig eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | sed -En "s/:/-/gp")
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/boot-info.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat << EOF > /usr/local/sbin/boot-info.sh
+#!/bin/bash
+# Created on \$(date)
+# ================================================
+# Configure /etc/issue
+# ================================================
+OS_INFO=\$(/usr/bin/lsb_release -a 2>&1 | grep Description | /usr/bin/cut -d ":" -f2 | sed -e 's/^[[:space:]]*//')
+HOST_PREFIX=${NETWORKING_HOST_PREFIX:-"node"}
+NET_DEVICE=${NETWORKING_NET_DEVICE:="eth0"}
+MAC_FULL=\$(sed -r "s/://g" /sys/class/net/\${NET_DEVICE}/address)
+NEW_HOSTNAME=\${HOST_PREFIX}-\${MAC_FULL:-0000}
 IPADDRS=\$(/usr/sbin/ip -4 -br a)
 
-# First time, back up /etc/issue
-if [ ! -f /etc/issue.orig ]
-then
-  cp /etc/issue /etc/issue.orig
-fi
-
-# "Reset" /etc/issue to original state
-cp /etc/issue.orig /etc/issue
-
-
 # Append IP address to /etc/issue
-echo "======================================" >> /etc/issue
+echo "======================================" > /etc/issue
 echo "    Welcome to Nvidia Jetson Nano!    " >> /etc/issue
 echo "======================================" >> /etc/issue
 echo "HOST Info:" >> /etc/issue
-echo "\$HOSTINFO" >> /etc/issue
+echo "\$OS_INFO" >> /etc/issue
+echo "\$NEW_HOSTNAME" >> /etc/issue
 echo "" >> /etc/issue
 echo "MAC address:" >> /etc/issue
-echo "\$MACADDR" >> /etc/issue
+echo "\$MAC_FULL" >> /etc/issue
 echo "" >> /etc/issue
 echo "Network Interfaces:" >> /etc/issue
 echo "\$IPADDRS" >> /etc/issue
@@ -86,9 +123,8 @@ echo "======================================" >> /etc/issue
 echo "" >> /etc/issue
 EOF
 
-# Make the files executable
-sudo chmod +x /etc/init.d/configure-hostname.sh
-sudo chmod +x /etc/networkd-dispatcher/routable.d/add-ip-to-login-screen
+sudo chmod +x /usr/local/sbin/boot-info.sh
+sudo systemctl enable boot-info
 
 # Dependencies
 sudo apt-get update

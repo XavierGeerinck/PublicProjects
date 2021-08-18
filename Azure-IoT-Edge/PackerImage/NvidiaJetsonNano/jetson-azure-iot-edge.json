@@ -11,7 +11,9 @@
         "admin_groups": "cdrom,floppy,sudo,audio,dip,video,plugdev,netdev,systemd-journal",
         "admin_shell": "/bin/bash",
         "admin_gecos": "Administrator",
-        "admin_ssh_authorised_key": ""
+        "admin_ssh_authorised_key": "",
+        "networking_host_prefix": "jetson",
+        "networking_net_device": "eth0"
     },
     "builders": [
         {
@@ -71,7 +73,9 @@
                 "ADMIN_UID={{user `admin_uid`}}",
                 "ADMIN_USER={{user `admin_user`}}",
                 "DPS_GROUP_ENROLLMENT_KEY={{user `dps_group_enrollment_key`}}",
-                "DPS_SCOPE_ID={{user `dps_scope_id`}}"
+                "DPS_SCOPE_ID={{user `dps_scope_id`}}",
+                "NETWORKING_HOST_PREFIX={{user `networking_host_prefix`}}",
+                "NETWORKING_NET_DEVICE={{user `networking_net_device`}}"
             ],
             "scripts": [
                 "./scripts/00-clean-nvidia-jetson.sh",
