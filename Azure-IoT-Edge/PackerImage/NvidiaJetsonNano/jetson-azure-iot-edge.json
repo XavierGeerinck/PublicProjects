@@ -49,13 +49,19 @@
         {
             "type": "shell",
             "inline": [
+                "mkdir -p /etc/m18x/files",
                 "mkdir -p /tmp/packer/scripts"
             ]
         },
         {
             "type": "file",
-            "source": "./scripts",
-            "destination": "/tmp/packer/"
+            "source": "./scripts/*",
+            "destination": "/tmp/packer/scripts/"
+        },
+        {
+            "type": "file",
+            "source": "./files/*",
+            "destination": "/etc/m18x/files"
         },
         {
             "type": "shell",
@@ -81,10 +87,9 @@
                 "./scripts/00-clean-nvidia-jetson.sh",
                 "./scripts/01-ubuntu-remove-gui.sh",
                 "./scripts/02-configure-system.sh",
-                "./scripts/03-configure-ssh.sh",
-                "./scripts/04-configure-chrony.sh",
-                "./scripts/05-create-admin-user.sh",
-                "./scripts/06-install-iot-edge.sh"
+                "./scripts/03-configure-boot-first.sh",
+                "./scripts/04-configure-boot-each.sh",
+                "./scripts/05-create-admin-user.sh"
             ]
         }
     ],

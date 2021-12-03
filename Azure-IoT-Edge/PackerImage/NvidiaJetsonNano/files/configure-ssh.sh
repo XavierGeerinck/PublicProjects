@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-#
+#!/bin/bash
+
 # Configure required ssh server options
 set -o errexit
 

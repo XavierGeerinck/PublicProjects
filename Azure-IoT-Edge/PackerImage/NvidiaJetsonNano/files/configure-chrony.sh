@@ -1,6 +1,5 @@
-  
-#!/usr/bin/env bash
-#
+#!/bin/bash
+
 # Configure time synchronisation with chrony
 set -o errexit
 

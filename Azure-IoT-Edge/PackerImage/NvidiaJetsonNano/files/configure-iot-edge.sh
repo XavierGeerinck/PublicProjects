@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Configure IoT Edge
 set -o errexit
 
@@ -7,24 +8,6 @@ set -o errexit
 
 # Logging
 echo "Installing Azure IoT Edge"
-
-sudo mkdir -p /etc/rw
-sudo touch /etc/rw/rwfirstbootedge
-
-echo "[RW System] Creating First Boot"
-cat << EOF > /etc/systemd/system/rw-boot-first-edge.service
-[Unit]
-Description=RW First Boot Script IoT Edge
-After=multi-user.target
-Wants=multi-user.target
-
-[Service]
-Type=oneshot
-ExecStart=/etc/systemd/rw-boot-first-edge.sh
-
-[Install]
-WantedBy=multi-user.target
-EOF
 
 # Installation
 # Note: escape since EOF allows command substitution. We can turn this of by using 'EOF'

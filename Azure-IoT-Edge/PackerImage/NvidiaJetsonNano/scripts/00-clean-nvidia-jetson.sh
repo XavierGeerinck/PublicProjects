@@ -1,15 +1,8 @@
 #!/bin/bash
-# # Set DNS first since else we can't apt update
-# echo "Setting DNS"
-# cat << EOF > /etc/resolv.conf
-# # Created on $(date)
-# nameserver 1.1.1.1
-# nameserver 1.0.0.1
-# EOF
-
 echo "[Jetson Nano] Fixing Sources"
-# # Fix sources list (t186 = TX2; t194 = AGX Xavier; t210 = Nano or TX1)
-# # https://forums.developer.nvidia.com/t/upgrade-to-r32-4-not-possible-via-ota/125881
+
+# Fix sources list (t186 = TX2; t194 = AGX Xavier; t210 = Nano or TX1)
+# https://forums.developer.nvidia.com/t/upgrade-to-r32-4-not-possible-via-ota/125881
 sed -i "s|https://repo.download.nvidia.com/jetson/<SOC>|https://repo.download.nvidia.com/jetson/t210|g" /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
  
 # echo "[Jetson Nano] Removing the Display Manager"
