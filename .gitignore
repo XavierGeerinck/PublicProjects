@@ -130,3 +130,6 @@ config.js
 .env
 obj/
 bin/
+
+# Pulumi
+Pulumi.*.yaml

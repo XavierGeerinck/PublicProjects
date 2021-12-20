@@ -1,0 +1,8 @@
+name: ca-yolov5-queue
+description: Creates an Azure Container App and deploys a custom Docker image to it that runs a Yolov5 inferencing model backed by a Service Bus queue
+runtime: nodejs
+template:
+  description: Creates an Azure Container App and deploys a custom Docker image to it that runs a Yolov5 inferencing model backed by a Service Bus queue
+  config:
+    azure-native:location:
+      description: The Azure region to deploy into
