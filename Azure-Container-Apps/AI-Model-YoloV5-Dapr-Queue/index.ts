@@ -1,6 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as random from "@pulumi/random";
 import * as docker from "@pulumi/docker";
+import * as dockerBuildkit from "@materializeinc/pulumi-docker-buildkit";
 
 import * as containerregistry from "@pulumi/azure-native/containerregistry";
 import * as operationalinsights from "@pulumi/azure-native/operationalinsights";
@@ -100,17 +101,29 @@ export const outAcrAdminPassword = acrCredentials.apply(credentials => credentia
 // App Container Configuration
 // ======================================================================
 const imageName = `${glbProjectName}-${glbProjectEnvironment}-${GLB_APP_ID}`;
-const image = new docker.Image(imageName, {
-  imageName: pulumi.interpolate`${acr.loginServer}/${imageName}:latest`,
-  build: { context: `./app` },
+const image = new dockerBuildkit.Image(imageName, {
+  name: pulumi.interpolate`${acr.loginServer}/${imageName}:latest`,
+  platforms: [ "linux/amd64" ],
+  dockerfile: "Dockerfile",
+  context: "./app",
   registry: {
     server: acr.loginServer,
     username: outAcrAdminUsername,
     password: outAcrAdminPassword
   },
-});
+})
 
-export const outImageName = pulumi.interpolate`${image.imageName}`;
+// const image = new docker.Image(imageName, {
+//   imageName: pulumi.interpolate`${acr.loginServer}/${imageName}:latest`,
+//   build: { context: `./app` },
+//   registry: {
+//     server: acr.loginServer,
+//     username: outAcrAdminUsername,
+//     password: outAcrAdminPassword
+//   },
+// });
+
+export const outImageName = pulumi.interpolate`${image.name}`;
 
 // ======================================================================
 // Container App Configuration
@@ -172,7 +185,7 @@ const containerApp = new web.ContainerApp("app", {
     revisionSuffix: `${(new Date()).getTime()}`,
     containers: [{
       name: `container-${GLB_APP_ID}`,
-      image: image.imageName,
+      image: image.name,
       env: [
         {
           name: "APP_ID",
@@ -192,6 +205,24 @@ const containerApp = new web.ContainerApp("app", {
         }
       ]
     }],
+    scale: {
+      minReplicas: 0,
+      maxReplicas: 1,
+      rules: [{
+        name: "http-rule",
+        custom: {
+          type: "azure-servicebus",
+          metadata: {
+            topicName: "worker-items",
+            messageCount: "1"
+          },
+          auth: [{
+            secretRef: "sb-connection-string",
+            triggerParameter: "connection"
+          }]
+        }
+      }]
+    },
     dapr: {
       enabled: true,
       appId: GLB_APP_ID,

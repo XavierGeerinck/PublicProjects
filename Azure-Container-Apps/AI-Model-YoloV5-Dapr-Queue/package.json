@@ -5,6 +5,7 @@
         "@types/node": "^8.0.0"
     },
     "dependencies": {
+        "@materializeinc/pulumi-docker-buildkit": "^0.1.12",
         "@pulumi/azure-native": "^1.44.0",
         "@pulumi/docker": "^3.0.0",
         "@pulumi/pulumi": "^3.0.0",
