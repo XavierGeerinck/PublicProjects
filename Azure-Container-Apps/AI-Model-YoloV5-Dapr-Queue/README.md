@@ -4,15 +4,57 @@
 
 Important to this demo is to test the use case of a Queue. Meaning that 1 item is processed once and not distributed over all the subscribers. Therefore we spin up 2 separate applications to demonstrate this.
 
-## Building
+## Creating Azure Infrastructure
 
-Build the container by running
+To build this application we will be using [Pulumi](https://www.pulumi.com/). A tool that focuses on Developers and let's us use Javascript to create our application in cloud. To get started, let's configure it for use with Azure:
+
+### Configuring Pulumi Azure
+
+The below will set the subscription in Azure that we will use
 
 ```bash
-docker build -t api-yolov5-dapr-queue .
+# Login to Azure
+az login
+
+# Set the Azure Account Subscription to deploy to
+az account set --subscription YOUR_SUBSCRIPTION_ID
+
+export PULUMI_CONFIG_PASSPHRASE=""
 ```
 
+### Running Pulumi
+
+Pulumi will take care of:
+* Creating the Azure Components
+* Building our application Docker container
+* Pushing it to a build Azure Container Registry
+* Starting the application in a [Container App](https://docs.microsoft.com/en-us/azure/container-apps/overview)
+
+So let's run the command below that will create a stack named `demo-cae-yolox` that deploys it to the `northeurope` region and listen on items in the topic `worker-items` of a Service Bus topic that will be created by Pulumi.
+
+```bash
+pulumi up \
+    --stack demo-cae-yolox \
+    -c glb-location=northeurope \
+    -c glb-project-name=demo-cae-yolox \
+    -c glb-project-env=prd \
+    -c sb-topics="worker-items"
+```
+
+ALl of the above take around 15 minutes to complete.
+
 ## Usage
+
+Once the Azure components have been created, configure the service bus connection in `examples/components/my-pubsub.yaml` and run it with:
+
+```bash
+dapr run --app-id=send-events --app-protocol http --components-path=./example/components python example/send.py
+```
+
+## Remarks
+
+When using Container Apps, it seems that when you deploy a new container, the version revision is not automatically updated.
+
 
 Start the application in with the Dapr Sidecar
 
@@ -65,4 +107,80 @@ ContainerAppConsoleLogs_CL
     | project ContainerAppName_s, Log_s, TimeGenerated 
     | order by TimeGenerated desc 
     | take 30
+```
+
+## Deploying
+
+# Pulumi Deploy
+
+## Getting Started
+
+### Install Pulumi
+
+Install Pulumi through the code below:
+
+```bash
+# Mac
+brew install pulumi
+
+# Windows
+choco install pulumi
+
+# Linux
+curl -fsSL https://get.pulumi.com | sh
+```
+
+### Access Microsoft
+
+```bash
+az login
+az account set --subscription YOUR_SUB_ID
+
+# Get the locations we can deploy in
+az account list-locations --output table
+```
+
+### Configure Pulumi
+
+#### State File
+
+Pulumi utilizes a state file. This file can be stored in the cloud or locally.
+
+```bash
+# Use Current Directory
+pulumi login file://$(pwd)
+
+# Use Home Directory
+pulumi login --local
+
+# Use Azure Blob
+AZURE_STORAGE_ACCOUNT="NAME_OF_STORAGE_ACCOUNT"
+AZURE_STORAGE_KEY="ACCESS_KEY_OF_STORAGE_ACCOUNT"
+pulumi login azblob://AZURE_STORAGE_ACCOUNT_CONTAINER_PATH
+
+# Logout
+pulumi logout
+
+# Migrating between backends
+# https://www.pulumi.com/docs/intro/concepts/state/#migrating-between-backends
+
+# Update State File
+# find resources in stack: pulumi stack -s YOUR_STACK_NAME
+# delete them: pulumi state -s YOUR_STACK_NAME delete 'URN'
+```
+
+## Running Pulumi
+
+```bash
+# Set Pulumi Location
+pulumi config set azure-native:location northeurope
+
+# Set Pulumi Password
+export PULUMI_CONFIG_PASSPHRASE="YOUR_PASSWORD"
+
+# [Node,.js] Install Dependencies
+npm i
+
+# Run Pulumi
+pulumi up --stack demo-container-apps-pulumi
 ```
