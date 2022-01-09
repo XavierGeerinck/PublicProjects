@@ -1,0 +1,12 @@
+#!/bin/bash
+APP_ID=${1-$APP_ID}
+APP_PORT=${2-$APP_PORT}
+DAPR_PUBSUB_NAME=${3-$DAPR_PUBSUB_NAME}
+DAPR_PUBSUB_TOPIC=${4-$DAPR_PUBSUB_TOPIC}
+
+APP_ID=${APP_ID-"demo-app"} \
+APP_PORT=${APP_PORT-"5000"} \
+DAPR_PUBSUB_NAME=${DAPR_PUBSUB_NAME-"my-pubsub"} \
+DAPR_PUBSUB_TOPIC=${DAPR_PUBSUB_TOPIC-"worker-items"} \
+cd src \
+uvicorn main:app --host 0.0.0.0 --port 8000
