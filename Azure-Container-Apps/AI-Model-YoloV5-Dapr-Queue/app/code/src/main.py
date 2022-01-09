@@ -3,10 +3,12 @@ from PIL import Image
 import requests
 import torch
 import os
+import json
 
 # Pydantic
 from typing import Optional
 from pydantic import BaseModel
+from starlette.requests import Request
 
 # App Server
 from fastapi import FastAPI
@@ -53,6 +55,9 @@ class CloudEventEventDto(BaseModel):
     data: Optional[dict]
     data_base64: Optional[str]
 
+# @todo: why is this needed here? shouldn't the __name__ == "main" be called first?
+model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True)
+model.eval()
 
 @app.post("/")
 async def handler_route(item: ItemDto):
@@ -61,9 +66,11 @@ async def handler_route(item: ItemDto):
 
 
 @dapr_app.subscribe(pubsub=GLB_DAPR_PUBSUB_MODEL_NAME, topic=GLB_DAPR_PUBSUB_MODEL_TOPIC)
-def handler_subscribe(req: CloudEventEventDto) -> None:
-    data = req.data
-    print(data, flush=True)
+async def handler_subscribe(req: Request) -> None:
+    # CloudEventEventDto normally but we cannot submit dict to the publish
+    # {'topic': 'worker-items', 'pubsubname': 'my-pubsub', 'data': '{"image_url": "https://www.ikea.com/images/een-3-zitsbank-met-chaise-longue-een-stellingkast-met-deuren-04d392ffcd855db85a5373f188230c66.jpg"}', 'id': 'aa050335-4a1b-46ac-9e19-c46acfc04a21', 'specversion': '1.0', 'type': 'com.dapr.event.sent', 'traceid': '00-e14fba7ba827d2da2d30ca7eb9da3957-f45807057c1c5029-01', 'datacontenttype': 'text/plain', 'source': 'send-events'}	
+    req_json = await req.json()
+    data = json.loads(req_json["data"])
     image_url = data["image_url"]
     return handler_image_url(image_url)
 

@@ -7,24 +7,28 @@ if __name__ == "__main__":
     print("Publishing 2 messages", flush=True)
 
     with DaprClient() as d:
-        d.publish_event(pubsub_name="my-pubsub", topic_name="worker-items", data=json.dumps({
-            "id": str(uuid.uuid4()),
-            "source": "/demo",
-            "specversion": "1.0.0",
-            "type": "com.m18x.examples.ai.yolo-dapr-queue",
-            "data": {
-                "image_url": "https://www.ikea.com/images/een-3-zitsbank-met-chaise-longue-een-stellingkast-met-deuren-04d392ffcd855db85a5373f188230c66.jpg"
-            }
-        }))
+        # d.publish_event(pubsub_name="my-pubsub", topic_name="worker-items", data=json.dumps({
+        #     "id": str(uuid.uuid4()),
+        #     "source": "/demo",
+        #     "specversion": "1.0.0",
+        #     "type": "com.m18x.examples.ai.yolo-dapr-queue",
+        #     "data": {
+        #         "image_url": "https://www.ikea.com/images/een-3-zitsbank-met-chaise-longue-een-stellingkast-met-deuren-04d392ffcd855db85a5373f188230c66.jpg"
+        #     }
+        # }))
+
+        # d.publish_event(pubsub_name="my-pubsub", topic_name="worker-items", data=json.dumps({
+        #     "id": str(uuid.uuid4()),
+        #     "source": "/demo",
+        #     "specversion": "1.0.0",
+        #     "type": "com.m18x.examples.ai.yolo-dapr-queue",
+        #     "data": {
+        #         "image_url": "https://www.ikea.com/images/een-3-zitsbank-met-chaise-longue-een-stellingkast-met-deuren-04d392ffcd855db85a5373f188230c66.jpg"
+        #     }
+        # }))
 
         d.publish_event(pubsub_name="my-pubsub", topic_name="worker-items", data=json.dumps({
-            "id": str(uuid.uuid4()),
-            "source": "/demo",
-            "specversion": "1.0.0",
-            "type": "com.m18x.examples.ai.yolo-dapr-queue",
-            "data": {
-                "image_url": "https://www.ikea.com/images/een-3-zitsbank-met-chaise-longue-een-stellingkast-met-deuren-04d392ffcd855db85a5373f188230c66.jpg"
-            }
+            "image_url": "https://www.ikea.com/images/een-3-zitsbank-met-chaise-longue-een-stellingkast-met-deuren-04d392ffcd855db85a5373f188230c66.jpg"
         }))
 
     print("Done", flush=True)
