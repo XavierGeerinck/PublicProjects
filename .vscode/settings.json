@@ -2,5 +2,19 @@
     "azureLogicAppsStandard.deploySubpath": "Azure-Logic-Apps/SQLStorageProvider",
     "azureLogicAppsStandard.projectLanguage": "JavaScript",
     "azureLogicAppsStandard.projectRuntime": "~3",
-    "debug.internalConsoleOptions": "neverOpen"
+    "debug.internalConsoleOptions": "neverOpen",
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wrappingIndent": "same",
+    "editor.wordWrapColumn": 240,
+    "python.formatting.provider": "autopep8",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python"
+    },
+    //custom config for python 
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        "240",
+        "--experimental"
+    ],
 }
