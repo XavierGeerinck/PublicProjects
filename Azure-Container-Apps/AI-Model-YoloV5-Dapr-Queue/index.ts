@@ -102,7 +102,7 @@ export const outAcrAdminPassword = acrCredentials.apply(credentials => credentia
 // ======================================================================
 const imageName = `${glbProjectName}-${glbProjectEnvironment}-${GLB_APP_ID}`;
 const image = new dockerBuildkit.Image(imageName, {
-  name: pulumi.interpolate`${acr.loginServer}/${imageName}:latest`,
+  name: pulumi.interpolate`${acr.loginServer}/${imageName}`, // do not tag for dynamic updating
   platforms: [ "linux/amd64" ],
   dockerfile: "Dockerfile",
   context: "./app",
@@ -111,17 +111,7 @@ const image = new dockerBuildkit.Image(imageName, {
     username: outAcrAdminUsername,
     password: outAcrAdminPassword
   },
-})
-
-// const image = new docker.Image(imageName, {
-//   imageName: pulumi.interpolate`${acr.loginServer}/${imageName}:latest`,
-//   build: { context: `./app` },
-//   registry: {
-//     server: acr.loginServer,
-//     username: outAcrAdminUsername,
-//     password: outAcrAdminPassword
-//   },
-// });
+});
 
 export const outImageName = pulumi.interpolate`${image.name}`;
 
@@ -205,16 +195,20 @@ const containerApp = new web.ContainerApp("app", {
         }
       ]
     }],
+    // https://keda.sh/docs/2.5/scalers/azure-service-bus/
     scale: {
       minReplicas: 0,
       maxReplicas: 1,
       rules: [{
-        name: "http-rule",
+        name: "rule-servicebus-scaler",
         custom: {
           type: "azure-servicebus",
           metadata: {
             topicName: "worker-items",
-            messageCount: "1"
+            // Name of the Azure Service Bus Queue to Scale On
+            // required if topicName is specified
+            subscriptionName: "worker-items",
+            messageCount: "1",
           },
           auth: [{
             secretRef: "sb-connection-string",
