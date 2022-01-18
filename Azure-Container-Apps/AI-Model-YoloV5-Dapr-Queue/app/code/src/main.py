@@ -34,26 +34,8 @@ Our Subscription Request DTO which follows a cloud envelope
 https://github.com/cloudevents/spec/blob/v1.0.1/json-format.md
 https://github.com/cloudevents/spec/blob/v1.0.1/spec.json
 """
-
-
 class ItemDto(BaseModel):
     image_url: str
-
-
-class CloudEventEventDto(BaseModel):
-    id: str
-    source: str
-    specversion: str
-    type: str
-
-    datacontenttype: Optional[str]
-    dataschema: Optional[str]
-    subject: Optional[str]
-    time: Optional[str]
-
-    # Can also be object, string, number, array, boolean or null
-    data: Optional[dict]
-    data_base64: Optional[str]
 
 # @todo: why is this needed here? shouldn't the __name__ == "main" be called first?
 model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True)
