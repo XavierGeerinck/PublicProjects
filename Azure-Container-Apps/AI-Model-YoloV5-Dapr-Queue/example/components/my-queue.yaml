@@ -1,0 +1,15 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: my-queue
+  namespace: default
+spec:
+  type: bindings.azure.servicebusqueues
+  version: v1
+  metadata:
+  - name: connectionString # Required
+    value: "Endpoint=sb://sbn6713d6ad.servicebus.windows.net/;SharedAccessKeyName=main-key;SharedAccessKey=SzbE+bOrY9FC/WN+/fruNQM5UaJM7GeX6odtFp0Tr3Q="
+  - name: queueName
+    value: worker-items
+  - name: ttlInSeconds
+    value: 60

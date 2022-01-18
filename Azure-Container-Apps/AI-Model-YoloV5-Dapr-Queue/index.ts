@@ -1,6 +1,4 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as random from "@pulumi/random";
-import * as docker from "@pulumi/docker";
 import * as dockerBuildkit from "@materializeinc/pulumi-docker-buildkit";
 
 import * as containerregistry from "@pulumi/azure-native/containerregistry";
@@ -57,19 +55,18 @@ const serviceBusNamespaceKeys = sb.listNamespaceKeysOutput({
   authorizationRuleName: serviceBusNamespaceAuthorizationRule.name
 });
 
-// Create the topics for our models
-// https://docs.microsoft.com/en-us/azure/templates/microsoft.servicebus/namespaces/topics?tabs=bicep
-const sbTopics = cfgSbTopicNames.split(";").map(topicName => new sb.Topic(topicName, {
-  resourceGroupName: resourceGroup.name,
-  namespaceName: serviceBusNamespace.name,
-
-  maxSizeInMegabytes: 1024,
-  requiresDuplicateDetection: false,
-  defaultMessageTimeToLive: 'P1D',
-  duplicateDetectionHistoryTimeWindow: 'PT10M',
-  autoDeleteOnIdle: 'P14D',
-  enablePartitioning: false,
-  enableExpress: false
+// Create the Queue for our Items
+const sbQueues = cfgSbTopicNames.split(";").map(queueName => new sb.Queue(queueName, {
+    resourceGroupName: resourceGroup.name,
+    namespaceName: serviceBusNamespace.name,
+  
+    maxSizeInMegabytes: 1024,
+    requiresDuplicateDetection: false,
+    defaultMessageTimeToLive: 'P1D',
+    duplicateDetectionHistoryTimeWindow: 'PT10M',
+    autoDeleteOnIdle: 'P14D',
+    enablePartitioning: false,
+    enableExpress: false
 }));
 
 export const outSbNamespaceName = pulumi.interpolate`${serviceBusNamespace.name}`;
@@ -186,11 +183,11 @@ const containerApp = new web.ContainerApp("app", {
           value: `${GLB_APP_PORT}`
         },
         {
-          name: "DAPR_PUBSUB_MODEL_NAME",
-          value: "my-pubsub"
+          name: "DAPR_QUEUE_MODEL_NAME",
+          value: "my-queue"
         },
         {
-          name: "DAPR_PUBSUB_MODEL_TOPIC",
+          name: "DAPR_QUEUE_MODEL_TOPIC",
           value: "worker-items"
         }
       ]
@@ -198,17 +195,14 @@ const containerApp = new web.ContainerApp("app", {
     // https://keda.sh/docs/2.5/scalers/azure-service-bus/
     scale: {
       minReplicas: 0,
-      maxReplicas: 1,
+      maxReplicas: 3,
       rules: [{
         name: "rule-servicebus-scaler",
         custom: {
           type: "azure-servicebus",
           metadata: {
-            topicName: "worker-items",
-            // Name of the Azure Service Bus Queue to Scale On
-            // required if topicName is specified
-            subscriptionName: "worker-items",
-            messageCount: "1",
+            queueName: "worker-items",
+            messageCount: "2",
           },
           auth: [{
             secretRef: "sb-connection-string",
@@ -224,8 +218,8 @@ const containerApp = new web.ContainerApp("app", {
       // appProtocol: 'http', // Disabled for now since unsupported by ARM CLI
       components: [
         {
-          name: 'my-pubsub',
-          type: 'pubsub.azure.servicebus',
+          name: 'my-queue',
+          type: 'bindings.azure.servicebusqueues',
           version: 'v1',
           metadata: [
             {
@@ -233,14 +227,12 @@ const containerApp = new web.ContainerApp("app", {
               secretRef: "sb-connection-string"
             },
             {
+              name: 'queueName',
+              value: 'worker-items'
+            },
+            {
               name: 'ttlInSeconds',
               value: '60'
-            },
-            // We want the pubsub to act as a queue so we can outscale easily
-            // https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-azure-servicebus/
-            {
-              name: 'maxActiveMessages',
-              value: '1'
             }
           ]
         }
