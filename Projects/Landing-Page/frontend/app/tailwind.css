@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+NextJS 13 adds data-nextjs-scroll-focus-boundary as a resolution so it is able to inject pages correctly
+By utilizing display: contents; we will let us ignore those nodes layout-wise 
+*/
+[data-nextjs-scroll-focus-boundary] {
+  display: contents;
+}

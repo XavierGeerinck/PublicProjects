@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "authLevel": "Anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+        "type": "table",
+        "name": "bindingTableLandingPageEmails",
+        "tableName": "landingpageemails",
+        "connection": "secret-landingpageemails-connectionstring",
+        "direction": "out"
+    }
+  ],
+  "scriptFile": "../dist/CreateLandingPageEmail/index.js"
+}

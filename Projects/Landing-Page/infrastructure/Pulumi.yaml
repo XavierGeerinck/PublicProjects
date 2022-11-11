@@ -1,0 +1,11 @@
+name: demo
+description: A Demo Application
+runtime:
+  name: nodejs
+  options:
+    # See https://github.com/TypeStrong/ts-node/issues/1007
+    nodeargs: "--loader ts-node/esm --no-warnings"
+template:
+  config:
+    azure-native:location:
+      description: The Azure region to deploy into
