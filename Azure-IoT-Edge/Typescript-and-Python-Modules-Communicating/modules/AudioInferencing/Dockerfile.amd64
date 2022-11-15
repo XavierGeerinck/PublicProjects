@@ -1,0 +1,16 @@
+FROM node:current-alpine
+
+WORKDIR /app/
+
+# Install Package.json dependendencies
+COPY package.json .
+RUN npm install -g npm@latest \
+    && npm -v \
+    && npm install
+
+# Copy Source Code
+COPY . .
+
+USER node
+
+CMD ["npm", "run", "start"]
