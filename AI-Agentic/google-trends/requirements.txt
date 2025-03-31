@@ -1,0 +1,5 @@
+playwright
+pandas
+python-dotenv
+bs4
+google-genai
