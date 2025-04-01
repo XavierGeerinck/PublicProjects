@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from urllib.parse import quote_plus
 from contextlib import contextmanager
 from dagster_cdc.constants import LSN_DEFAULT
+from typing import List
 
 
 class SQLServerCDCConfig(Config):
@@ -41,6 +42,21 @@ class SQLServerCDCResource:
             yield connection
         finally:
             connection.close()
+
+    def get_primary_key_columns(self, table_name: str) -> List[str]:
+        """Get the primary key columns for a CDC-enabled table."""
+        with self.get_connection() as connection:
+            instance = self.get_capture_instance_name("dbo", table_name)
+
+            query = sa.text("""
+            SELECT column_name FROM cdc.index_columns WHERE object_id = (
+                SELECT object_id FROM cdc.change_tables WHERE capture_instance = :capture_instance_name
+            )
+            """)
+
+            result = connection.execute(query, {"capture_instance_name": instance})
+            primary_key_columns = [row[0] for row in result]
+            return primary_key_columns
 
     def is_cdc_enabled_for_database(self):
         """Check if CDC is enabled for the database."""

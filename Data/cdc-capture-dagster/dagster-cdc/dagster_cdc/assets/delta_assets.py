@@ -4,15 +4,15 @@ import os
 from dagster_cdc.constants import PATH_DELTA, LSN_DEFAULT
 from dagster_cdc.resources.sql_server_cdc import SQLServerCDCResource
 from dagster_cdc.utils.delta_helpers import process_cdc_changes
+import dagster as dg
 
 
 class BaseDeltaAsset:
     """Abstract base class for managing CDC updates to Delta tables."""
 
-    def __init__(self, table_name: str, sql_server_cdc):
+    def __init__(self, table_name: str, sql_server_cdc: SQLServerCDCResource):
         self.table_name = table_name
         self.sql_server_cdc = sql_server_cdc
-        # Get primary key information from SQL Server CDC
         self.primary_key_columns = sql_server_cdc.get_primary_key_columns(table_name)
 
     def get_last_lsn(self, context: AssetExecutionContext):
@@ -85,14 +85,13 @@ def delta_load_upsert(
     cdc_df, current_lsn = sql_server_cdc.get_table_changes(table_name, last_lsn)
 
     # If no changes, skip
-    # @todo: should we read the parquet here??
-    if cdc_df.empty:
+    if cdc_df.is_empty():
         context.log.info(f"No changes found for {table_name}")
-        return pl.read_parquet(delta_path)
+        return pl.read_delta(delta_path)
 
     if "__$operation" not in cdc_df.columns:
         context.log.info(f"No changes found for {table_name}")
-        return pl.read_parquet(delta_path)
+        return pl.read_delta(delta_path)
 
     # Process CDC changes, create a new DF of changes and merge them into the delta file.
     # this merge operation happens through the IO Manager, thus we just return the DF with our changes.
@@ -124,7 +123,7 @@ def create_delta_asset(table_name):
         io_manager_key="delta_io_manager",
         required_resource_keys={"sql_server_cdc"},
     )
-    def delta_asset(context: AssetExecutionContext) -> pl.DataFrame:
+    def delta_asset(context: AssetExecutionContext):
         """Asset that tracks changes to the table and writes to Delta Lake."""
         # Get the sql_server_cdc from resources
         sql_server_cdc = context.resources.sql_server_cdc
@@ -133,22 +132,30 @@ def create_delta_asset(table_name):
         last_lsn = delta_asset.get_last_lsn(context)
         context.log.info(f"Processing changes for {table_name} since LSN: {last_lsn}")
 
+        res = pl.DataFrame()
+
         try:
             delta_path = f"{PATH_DELTA}/public/{table_name.lower()}_delta"
 
             # If the table is empty or the Delta table doesn't exist, perform an initial load
             if last_lsn == LSN_DEFAULT or not os.path.exists(delta_path):
-                return delta_load_full(
+                res = delta_load_full(
                     context, sql_server_cdc, table_name, delta_path, last_lsn
                 )
             else:
-                return delta_load_upsert(
+                res = delta_load_upsert(
                     context, sql_server_cdc, table_name, delta_path, last_lsn
                 )
 
         except Exception as e:
-            context.log.error(f"Error processing CDC changes: {e}")
-            return pl.DataFrame()
+            raise e
+
+        # context.add_output_metadata({"merge_predicate_2": "s.CustomerID = t.CustomerID"})
+
+        return dg.Output(
+            value=res,
+            metadata={"merge_predicate": "s.CustomerID = t.CustomerID"},
+        )
 
     return delta_asset
 

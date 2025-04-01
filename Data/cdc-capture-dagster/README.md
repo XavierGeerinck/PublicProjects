@@ -59,8 +59,20 @@ code dagster-cdc
 # Download the dependencies
 uv sync
 
+# Activate env
+source .venv/bin/activate
+
+# Navigate to the dagster project
+cd dagster_cdc/
+
+# Copy the dagster config
+cp dagster.yaml ~/.dagster/dagster.yaml
+
+# Configure the database access
+cp .env.example .env
+
 # Start Dagster Locally
-dagster dev -f dagster_cdc/definitions.py
+DAGSTER_HOME=~/.dagster dagster dev -f dagster_cdc/definitions.py
 ```
 
 ## Troubleshooting
@@ -78,3 +90,7 @@ export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 ### Can't open lib 'ODBC Driver 18 for SQL Server' : file not found (0) (SQLDriverConnect)
 
 Install the driver as per [Documentation (Linux)](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15&tabs=alpine18-install%2Calpine17-install%2Cdebian8-install%2Credhat7-13-install%2Crhel7-offline#18) or [Documentation (macOS)](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15)
+
+### ImportError: libodbc.so.2: cannot open shared object file: No such file or directory
+
+Install the linux odbc driver `sudo apt install unixodbc`

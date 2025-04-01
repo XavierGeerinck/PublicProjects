@@ -1,6 +1,11 @@
 from dagster import Definitions
-from dagster_delta import LocalConfig, WriteMode, MergeConfig, MergeType
-from dagster_delta_polars import DeltaLakePolarsIOManager
+from dagster_delta import (
+    LocalConfig,
+    WriteMode,
+    MergeConfig,
+    MergeType,
+    DeltaLakePolarsIOManager,
+)
 from dagster_cdc.assets.delta_assets import CustomersDelta, OrdersDelta
 from dagster_cdc.resources.sql_server_cdc import (
     SQLServerCDCResource,
@@ -28,7 +33,7 @@ defs = Definitions(
                 # this is thus a full compare
                 merge_type=MergeType.replace_delete_unmatched,
                 # The predicate to match (note: extra ones will be added based on partition)
-                predicate="target.id = source.id",
+                # predicate="target.id = source.id",
             ),
         ),
     },

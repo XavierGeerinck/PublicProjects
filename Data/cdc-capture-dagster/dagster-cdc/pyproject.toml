@@ -8,12 +8,13 @@ authors = [
 license = "MIT"
 dependencies = [
     "dagster",
-    "dagster-deltalake",
     "pandas",
     "sqlalchemy",
     "pyodbc",
     "delta-spark",
-    "dagster-deltalake-polars>=0.26.7"
+    "dagster-webserver>=1.10.7",
+    "dagster-delta>=0.4.0",
+    "dagster-delta[polars]>=0.4.0"
 ]
 
 [build-system]
