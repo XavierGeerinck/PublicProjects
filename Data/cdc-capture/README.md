@@ -37,10 +37,7 @@ By leveraging Apache Iceberg, an optimized MERGE INTO statement can be utilized 
 
 ## Demo
 
-<video controls src="cdc-demo-apache-iceberg.mp4" width="400px" height="400px" controls muted>
-    <source src="cdc-demo-apache-iceberg.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
+[Demo - CDC Spark](cdc-demo-apache-iceberg.mp4)
 
 ## Reference
 
