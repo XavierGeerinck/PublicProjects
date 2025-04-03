@@ -1,0 +1,5 @@
+catalogs:
+  sandbox:
+    uri: sqlite:///:memory:
+    warehouse: /tmp/warehouse
+    type: sql

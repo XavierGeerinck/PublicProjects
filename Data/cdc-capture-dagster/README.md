@@ -1,79 +1,72 @@
 # README
 
-This is an example of a CDC (Capture Data Change) pipeline using Delta, Dagster and SQL Server.
+This is an example of a CDC (Capture Data Change) pipeline using several different popular ETL Set-Ups. We are working on creating the following pipeline that can take care of:
 
-The example will demonstrate a pipeline where:
-1. We read changes from SQL Server through CDC
-2. Process the changes and provide them back to the Dagster Delta IO Manager for Merging
-3. The merge process will UPSERT existing records
+- Handling Upserts
+- Handling Deletes
+- Not require a full load of the existing data
+- Allow loading small single tables (full replace) while allowing larger tables to be loaded over time through CDC (incremental)
 
-> TODO: Validate the below, we should figure out a solution for this
-> Note: We are upserting, this DELETE records won't happen. To delete, we can simply set an `is_deleted` flag
+Therefore, the following architecture is used as proof of concept:
 
+```mermaid
+flowchart TD
+    A[SQL Server]
+    B[CDC]
+    C[ADF]
+    D[Iceberg File]
+    E[ADLS]
+    F[PBI Dataset]
+    G[PBI Report]
+
+    A --> |Create CDC| B
+    C --> |ADF fetch full table| A
+    C --> |ADF fetch cdc table| B
+    C --> |Sink to File| D
+    D --> |Save on Storage| E
+    F --> E
+    G --> F
+```
+
+In the case of orchestration, the following is supported:
+
+- [x] [Spark](./cdc-apache-iceberg)
+- [ ] [Dagster](./cdc-dagster) (close to be working, but still WIP)
+
+By leveraging Apache Iceberg, an optimized MERGE INTO statement can be utilized that correctly merges records based on the operation type (INSERT, UPDATE, DELETE) and the primary key.
+
+## Demo
+
+![](./cdc-demo-apache-iceberg.mp4)
 
 ## Reference
 
-https://pola.rs/
-https://github.com/ASML-Labs/dagster-delta/issues/23
+A big thanks to the following projects to make this work in an as efficient way as possible:
+- [Apache Iceberg](https://iceberg.apache.org/)
+- [Apache Spark](https://spark.apache.org/)
+- [Pola.rs](https://pola.rs/)
+- [Dagster](https://dagster.io/)
 
-## Prerequisites
+## Extra
 
-### Python 3.12
+Within the ETL community there are several tools, the 3 most famous ones are Delta Lake, Apache Iceberg and Apache Hudi. Comparing them is not as straightforward, but the following table is commonly looked at:
 
-```bash
-# Install UV
-# why UV? Because it's fast (see: https://codemaker2016.medium.com/introducing-uv-next-gen-python-package-manager-b78ad39c95d7)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+|Feature| Delta Lake | Apache Iceberg | Apache Hudi |
+|-------|------------|----------------|-------------|
+|Open Source| Yes (although commercial) | Yes | Yes |
+| Primary Use Case| ACID transactions, data quality, spark integration | Large Scale Analytics + Schema Evolution | Fast data updates, streaming, and ETL |
 
-# Configure Python 3.12 with it
-uv python install 3.12
-```
+As Databricks is part of Databricks enterprise, it makes more sense to go int othe Apache Iceberg ecosystem for classical BI. This might however change as Databricks decided to acquire [Tabular](https://www.tabular.io/blog/tabular-is-joining-databricks/) which was the storage engine company behind Apache Iceberg (which was in its turn initially created by Netflix). So the future will become interesting. 
 
-### SQL Server
-
-Create a SQL Server instance with a database named `main`
-
-### pyodbc
-
-```bash
-# MacOS
-brew install unixodbc
-```
-
-## Getting Started
-
-### 1. Create DB Schema
-
-Execute the schema SQL from `./1-schema.sql`
-
-### 2. Enable CDC
-
-Enable the Change Data Capture by executing the SQL in `./2-enable-cdc.sql`
-
-### 3. Run Dagster
-
-```bash
-# Open the Dagster folder in a standalone VSCode instance
-code dagster-cdc
-
-# Download the dependencies
-uv sync
-
-# Activate env
-source .venv/bin/activate
-
-# Navigate to the dagster project
-cd dagster_cdc/
-
-# Copy the dagster config
-cp dagster.yaml ~/.dagster/dagster.yaml
-
-# Configure the database access
-cp .env.example .env
-
-# Start Dagster Locally
-DAGSTER_HOME=~/.dagster dagster dev -f dagster_cdc/definitions.py
-```
+More material:
+- https://youtu.be/QNmSXMQ-gY4?t=2022
+- https://medium.com/@kywe665/delta-hudi-iceberg-a-benchmark-compilation-a5630c69cffc
+- https://estuary.dev/blog/apache-iceberg-vs-apache-hudi/#choosing-between-apache-iceberg-and-apache-hudi
+- https://www.linkedin.com/pulse/iceberg-vs-hudi-delta-lake-choosing-right-open-table-format-kargin-xaa5e/
+- https://medium.com/@masterkeshav/data-engineering-iceberg-on-azure-synapse-spark-pool-bbea85ccb106
+- https://learn.microsoft.com/en-us/azure/data-factory/format-iceberg
+- https://www.datacamp.com/tutorial/apache-iceberg
+- https://www.tabular.io/blog/docker-spark-and-iceberg-the-fastest-way-to-try-iceberg/
 
 ## Troubleshooting
 

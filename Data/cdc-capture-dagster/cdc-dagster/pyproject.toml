@@ -1,0 +1,26 @@
+[project]
+name = "cdc-dagster"
+version = "0.1.0"
+description = "A project for managing CDC updates from SQL Server to Delta Lake."
+authors = [
+    {name = "Xavier Geerinck", email = "xavier.geerinck@gmail.com"}
+]
+license = "MIT"
+dependencies = [
+    "dagster",
+    "pandas",
+    "sqlalchemy",
+    "pyodbc",
+    "delta-spark",
+    "dagster-webserver>=1.10.7",
+    "dagster-delta>=0.4.1",
+    "dagster-delta[polars]>=0.4.1"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.dagster]
+assets = ["cdc_dagster.assets.delta_assets"]
+resources = ["cdc_dagster.resources.sql_server_cdc"]

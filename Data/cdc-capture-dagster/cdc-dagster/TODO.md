@@ -1,0 +1,2 @@
+- [ ] implement `process_cdc_changes` properly
+- [ ] do not return the entire data frame? avoid full data copies into memory
