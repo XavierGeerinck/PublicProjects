@@ -18,6 +18,10 @@ http://localhost:5432 # PostgreSQL
 http://localhost:8000 # Iceberg REST Catalog
 ```
 
+## Demo
+
+https://youtu.be/LVo9tdrCZMA
+
 ## Reference
 
 https://binayakd.tech/posts/2024-08-30-exploring-iceberg/
