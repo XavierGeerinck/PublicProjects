@@ -1,0 +1,5 @@
+jupyter
+pyarrow
+pandas
+psycopg[binary]
+trino[sqlalchemy]

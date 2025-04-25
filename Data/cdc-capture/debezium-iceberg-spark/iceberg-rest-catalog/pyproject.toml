@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "iceberg-rest"
+version = "0.1.0"
+description = "An Apache Iceberg REST Catalog implementation in Python."
+authors = [
+    "Kevin Liu <kevinjqliu@users.noreply.github.com>",
+    "GoldToothRichards <crabtr26@proton.me>",
+]
+readme = "README.md"
+packages = [{ include = "iceberg_rest", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.111.0"
+mysqlclient = { version = "^2.2.4", optional = true }
+psycopg2-binary = { version = "^2.9.9", optional = true }
+pyarrow = "^16.1.0"
+pydantic-settings = "^2.3.2"
+pyiceberg = "^0.9.0"
+s3fs = "^2024.6.0"
+sqlalchemy = "^2.0.30"
+uvicorn = "^0.30.1"
+
+[tool.poetry.extras]
+base = []
+postgres = ["psycopg2-binary"]
+mysql = ["mysqlclient"]
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+moto = "^5.0.9"
+pandas = "^2.2.2"
+pre-commit = "^3.7.1"
+pyright = "^1.1.366"
+pyspark = "^3.5.5"
+pytest = "7.4.4"
+pytest-icdiff = "^0.9"
+pytest-lazy-fixture = "0.6.3"
+ruff = "^0.4.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

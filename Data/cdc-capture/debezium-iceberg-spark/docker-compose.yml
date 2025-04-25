@@ -1,0 +1,143 @@
+version: '3'
+services:
+  # MinIO (S3-compatible storage for Iceberg)
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+      - MINIO_DOMAIN=minio
+      - MINIO_BUCKET=warehouse
+    command: [ "server", "/data", "--console-address", ":9001" ]
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # MinIO Setup
+  # Create warehouse bucket in MinIO named "warehouse"
+  minio-setup:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      - AWS_ACCESS_KEY_ID=demo
+      - AWS_SECRET_ACCESS_KEY=password
+      - AWS_REGION=us-east-1
+    entrypoint: >
+      /bin/sh -c " until (/usr/bin/mc config host add minio http://minio:9000 admin password) do echo '...waiting...' && sleep 1; done; /usr/bin/mc rm -r --force minio/warehouse/rest; /usr/bin/mc mb minio/warehouse/rest; /usr/bin/mc policy set public minio/warehouse/rest; tail -f /dev/null "
+  # Postgres DB (for Iceberg Catalog Data)
+  iceberg-catalog-postgres:
+    image: postgres:17
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/pgdata
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: iceberg
+  # Python based Iceberg REST Catalog
+  iceberg-catalog:
+    image: iceberg-rest-catalog
+    container_name: iceberg-rest-catalog
+    depends_on:
+      - iceberg-catalog-postgres
+      - minio
+      - minio-setup
+    build:
+      context: iceberg-rest-catalog/
+      dockerfile: Dockerfile
+      target: prod
+      args:
+        - BASE_IMAGE=python:3.12-slim
+        - EXTRAS=postgres
+    ports:
+      - 8000:8000
+    environment:
+      CATALOG_NAME: iceberg
+      CATALOG_JDBC_URI: postgresql://postgres:postgres@iceberg-catalog-postgres:5432/iceberg
+      CATALOG_WAREHOUSE: s3://warehouse/iceberg/
+      CATALOG_S3_ENDPOINT: http://minio:9000
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password
+      AWS_REGION: us-east-1
+  # Debezium Server with Iceberg extension
+  iceberg-debezium:
+    image: ghcr.io/memiiso/debezium-server-iceberg:latest
+    container_name: iceberg-debezium-server
+    depends_on:
+      - iceberg-catalog
+      - minio
+      - minio-setup
+      - iceberg-catalog-postgres
+    volumes:
+      - ./debezium/conf/application.properties:/app/conf/application.properties
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password
+      - AWS_REGION=us-east-1
+  # Spark Development environment
+  spark-jupyter:
+    image: spark-jupyter
+    container_name: spark-jupyter
+    build: spark/
+    ports:
+      - 8888:8888
+    volumes:
+      - ./spark/workspace:/home/iceberg/workspace
+      - spark-data:/home/iceberg/workspace/downloaded-data
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password
+      AWS_REGION: us-east-1
+  # Trino Server
+  trino:
+    image: "trinodb/trino:453"
+    container_name: trino
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino/etc:/usr/lib/trino/etc
+      - ./trino/catalog:/etc/trino/catalog
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password
+      AWS_REGION: us-east-1
+  # # Spark master for querying Iceberg data
+  # spark:
+  #   image: bitnami/spark:3.3
+  #   environment:
+  #     - SPARK_MODE=master
+  #   ports:
+  #     - "8080:8080"
+  #     - "7077:7077"
+  #   volumes:
+  #     - ./spark/scripts:/opt/spark/scripts
+  #     - ./spark/jars:/opt/spark/jars
+  #   depends_on:
+  #     - minio
+  # # Spark worker
+  # spark-worker:
+  #   image: bitnami/spark:3.3
+  #   environment:
+  #     - SPARK_MODE=worker
+  #     - SPARK_MASTER_URL=spark://spark:7077
+  #   depends_on:
+  #     - spark
+  #   volumes:
+  #     - ./spark/scripts:/opt/spark/scripts
+  #     - ./spark/jars:/opt/spark/jars
+volumes:
+  minio-data:
+  postgres-data:
+  spark-data:
+  trino-data:
